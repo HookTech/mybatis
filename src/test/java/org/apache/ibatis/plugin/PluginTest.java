@@ -17,6 +17,7 @@ package org.apache.ibatis.plugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static java.lang.System.out;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -29,7 +30,8 @@ public class PluginTest {
   public void mapPluginShouldInterceptGet() {
     Map map = new HashMap();
     map = (Map) new AlwaysMapPlugin().plugin(map);
-    assertEquals("Always", map.get("Anything"));
+//    assertEquals("Always", map.get("Anything"));
+    assertEquals("Always", map.get(1));
   }
 
   @Test
@@ -37,6 +39,14 @@ public class PluginTest {
     Map map = new HashMap();
     map = (Map) new AlwaysMapPlugin().plugin(map);
     assertFalse("Always".equals(map.toString()));
+  }
+
+  @Test
+  public void interceptStringMethod(){
+    CharSequence toBeTest = new String("Have fun");
+    assertEquals(jdkStringPlugin.INTERCEPTSTR + toBeTest,
+            ((CharSequence) new jdkStringPlugin().plugin(toBeTest)).toString()
+    );
   }
 
   @Intercepts({
@@ -51,6 +61,33 @@ public class PluginTest {
     }
 
     public void setProperties(Properties properties) {
+    }
+  }
+
+  /**
+   * modify by philo
+   * */
+  @Intercepts({
+          @Signature(type = CharSequence.class, method = "toString",args = {})
+  })
+  public static class jdkStringPlugin implements Interceptor {
+
+    public static final String INTERCEPTSTR = "addedPrefix_";
+
+    @Override
+    public Object intercept(Invocation invocation) throws Throwable {
+      out.println("intercept: invoke method-" + invocation.getMethod() + " invoke args-" + invocation.getArgs());
+      return INTERCEPTSTR + invocation.proceed();
+    }
+
+    @Override
+    public Object plugin(Object target) {
+      return Plugin.wrap(target,this);
+    }
+
+    @Override
+    public void setProperties(Properties properties) {
+
     }
   }
 

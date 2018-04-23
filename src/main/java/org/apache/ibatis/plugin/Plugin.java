@@ -30,7 +30,7 @@ import org.apache.ibatis.reflection.ExceptionUtil;
  */
 /**
  * 插件,用的代理模式
- *
+ * 核心类
  */
 public class Plugin implements InvocationHandler {
 
@@ -78,7 +78,7 @@ public class Plugin implements InvocationHandler {
     }
   }
 
-  //取得签名Map
+  //取得签名Map,根据注解运行时生成一条条signature中type到method的映射项
   private static Map<Class<?>, Set<Method>> getSignatureMap(Interceptor interceptor) {
     //取Intercepts注解，例子可参见ExamplePlugin.java
     Intercepts interceptsAnnotation = interceptor.getClass().getAnnotation(Intercepts.class);
