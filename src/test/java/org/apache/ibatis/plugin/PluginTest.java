@@ -42,10 +42,10 @@ public class PluginTest {
   }
 
   @Test
-  public void interceptStringMethod(){
-    CharSequence toBeTest = new String("Have fun");
-    assertEquals(jdkStringPlugin.INTERCEPTSTR + toBeTest,
-            ((CharSequence) new jdkStringPlugin().plugin(toBeTest)).toString()
+  public void interceptTestInterfaceMethod(){
+    TestInterface toBeTest = new TestClass("Have fun");
+    assertEquals(TestClassPlugin.INTERCEPT_STR + toBeTest.getStr(),
+            ((TestInterface) new TestClassPlugin().plugin(toBeTest)).getStr()
     );
   }
 
@@ -65,19 +65,19 @@ public class PluginTest {
   }
 
   /**
-   * modify by philo
+   * create by philo
    * */
   @Intercepts({
-          @Signature(type = CharSequence.class, method = "toString",args = {})
+          @Signature(type = TestInterface.class, method = "getStr",args = {})
   })
-  public static class jdkStringPlugin implements Interceptor {
+  public static class TestClassPlugin implements Interceptor {
 
-    public static final String INTERCEPTSTR = "addedPrefix_";
+    public static final String INTERCEPT_STR = "addedPrefix_";
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
-      out.println("intercept: invoke method-" + invocation.getMethod() + " invoke args-" + invocation.getArgs());
-      return INTERCEPTSTR + invocation.proceed();
+      out.println("intercept:\ninvoke method-\"" + invocation.getMethod() + "\"\ninvoke args-\"" + invocation.getArgs() + "\"");
+      return INTERCEPT_STR + invocation.proceed();
     }
 
     @Override
@@ -88,6 +88,21 @@ public class PluginTest {
     @Override
     public void setProperties(Properties properties) {
 
+    }
+  }
+
+  private interface TestInterface{
+    String getStr();
+  }
+
+  private class TestClass implements TestInterface{
+    private String rawStr;
+
+    public TestClass(String str){this.rawStr = str;}
+
+    @Override
+    public String getStr() {
+      return rawStr;
     }
   }
 
