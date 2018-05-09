@@ -1,8 +1,8 @@
 package org.apache.ibatis.adapter.plugin.sql;
 
-import org.apache.ibatis.plugin.Interceptor;
-import org.apache.ibatis.plugin.Invocation;
-import org.apache.ibatis.plugin.Plugin;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.plugin.*;
 
 import java.util.Properties;
 
@@ -14,14 +14,26 @@ import static java.lang.System.out;
  * @author philo
  * @create 2018-05-09 9:57 AM
  **/
+
+@Intercepts(
+        {
+                @Signature(type = Executor.class, method = "commit", args = {boolean.class}),
+                @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class})
+        }
+)
 public class MysqlPlugin implements Interceptor {
 
     String prop1;
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
-        out.println("intercept:\ninvoke method-\"" + invocation.getMethod() + "\"\ninvoke args-\"" + invocation.getArgs() + "\"");
-        out.println("prop1:\t" + prop1);
+        out.println("\nintercept:invoke method-" + invocation.getMethod().getName());
+        if("commit".equals(invocation.getMethod().getName())){
+            out.println("commit\t" + prop1);
+        }
+        else if("update".equals(invocation.getMethod().getName())){
+            out.println("update\t" + prop1);
+        }
         return invocation.proceed();
     }
 
