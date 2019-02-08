@@ -18,30 +18,29 @@ import static org.junit.Assert.assertNotNull;
  **/
 public class MysqlPluginTest extends BaseDataTest {
 
-    private static SqlSessionManager manager;
+	private static SqlSessionManager manager;
 
-    @BeforeClass
-    public static void setup() throws Exception {
-        createBlogDataSource();
-        final String resource = "org/apache/ibatis/adapter/plugin/sql/MapperConfig.xml";
-        final Reader reader = Resources.getResourceAsReader(resource);
-        manager = SqlSessionManager.newInstance(reader);
-    }
+	@BeforeClass
+	public static void setup() throws Exception {
+		createBlogDataSource();
+		final String resource = "org/apache/ibatis/adapter/plugin/sql/MapperConfig.xml";
+		final Reader reader = Resources.getResourceAsReader(resource);
+		manager = SqlSessionManager.newInstance(reader);
+	}
 
-    @Test
-    public void testPlugin(){
-        try {
-            manager.startManagedSession();
-            AuthorMapper mapper = manager.getMapper(AuthorMapper.class);
-            Author expected = new Author(500, "cbegin", "******", "cbegin@somewhere.com", "Something...", null);
-            mapper.insertAuthor(expected);
-            manager.commit();
-            Author actual = mapper.selectAuthor(500);
-            assertNotNull(actual);
-        }
-        catch (Exception e){}
-        finally {
-            manager.close();
-        }
-    }
+	@Test
+	public void testPlugin() {
+		try {
+			manager.startManagedSession();
+			Author expected = new Author(500, "cbegin", "******", "cbegin@somewhere.com", "Something...", null);
+			AuthorMapper mapper = manager.getMapper(AuthorMapper.class);
+			mapper.insertAuthor(expected);
+			manager.commit();
+			Author actual = mapper.selectAuthor(500);
+			assertNotNull(actual);
+		} catch (Exception e) {
+		} finally {
+			manager.close();
+		}
+	}
 }

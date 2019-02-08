@@ -150,6 +150,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 
   //
   // HANDLE RESULT SETS
+  // 在statement已经执行过了，开始取值完成映射转换
   //
   @Override
   public List<Object> handleResultSets(Statement stmt) throws SQLException {
@@ -355,7 +356,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     //实例化ResultLoaderMap(延迟加载器)
     final ResultLoaderMap lazyLoader = new ResultLoaderMap();
     //调用自己的createResultObject,内部就是new一个对象(如果是简单类型，new完也把值赋进去)
-    Object resultObject = createResultObject(rsw, resultMap, lazyLoader, null);
+    Object resultObject = createResultObject(rsw, resultMap, lazyLoader, null);//#1开始创建返回类型
     if (resultObject != null && !typeHandlerRegistry.hasTypeHandler(resultMap.getType())) {
       //一般不是简单类型不会有typehandler,这个if会进来
       final MetaObject metaObject = configuration.newMetaObject(resultObject);
@@ -363,9 +364,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
       if (shouldApplyAutomaticMappings(resultMap, false)) {        
         //自动映射咯
         //这里把每个列的值都赋到相应的字段里去了
-    	foundValues = applyAutomaticMappings(rsw, resultMap, metaObject, null) || foundValues;
+    	foundValues = applyAutomaticMappings(rsw, resultMap, metaObject, null) || foundValues;//#2开始自动映射
       }
-      foundValues = applyPropertyMappings(rsw, resultMap, metaObject, lazyLoader, null) || foundValues;
+      foundValues = applyPropertyMappings(rsw, resultMap, metaObject, lazyLoader, null) || foundValues;//#3开始赋值
       foundValues = lazyLoader.size() > 0 || foundValues;
       resultObject = foundValues ? resultObject : null;
       return resultObject;
